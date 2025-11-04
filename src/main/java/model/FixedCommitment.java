@@ -99,13 +99,17 @@ public class FixedCommitment extends Activity {
         return getCompleted() ? 100 : 0;
     }
 
-    // --- Formato agenda ---
+        // --- Formato agenda ---
     @Override
     public String toString() {
+        String emoji = getCompleted() ? "✅" :
+                isOverdue() ? "⚠️" :
+                        isUpcoming() ? "🔔" : "⏰";
         String status = getCompleted() ? "[COMPLETADO]" :
                 isOverdue() ? "[VENCIDO]" :
                         isUpcoming() ? "[PRÓXIMO!]" : "";
-        return String.format("• %s - %s %s",
+        return String.format("%s %s %s - %s %s",
+                getId(), emoji,
                 scheduledTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")),
                 getName(), status);
     }

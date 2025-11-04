@@ -106,36 +106,48 @@ public class Week {
         return activities.stream().filter(a -> a instanceof FixedCommitment).map(a -> (FixedCommitment)a).toList();
     }
 
-    @Override
+        @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("=== SEMANA ===\n");
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n").append("=".repeat(50)).append("\n");
+        sb.append("           📅 VISTA SEMANAL 📅\n");
+        sb.append("=".repeat(50)).append("\n\n");
 
         // Metas
         var metas = getPersonalGoals();
-        sb.append("METAS PERSONALES:\n");
-        if (metas.isEmpty()) sb.append("  Ninguna.\n");
-        else metas.forEach(m -> sb.append("  ").append(m).append("\n"));
+        sb.append("🎯 METAS PERSONALES:\n");
+        if (metas.isEmpty()) {
+            sb.append("  💭 Ninguna meta definida aún.\n");
+        } else {
+            metas.forEach(m -> sb.append("  ").append(m).append("\n"));
+        }
 
         // Agenda semana
-        sb.append("\nCOMPROMISOS DE LA SEMANA:\n");
+        sb.append("\n📅 AGENDA DE LA SEMANA:\n");
         var agenda = getAgendaSemana();
         if (agenda.isEmpty()) {
-            sb.append("  Ninguno.\n");
+            sb.append("  💭 Sin compromisos programados.\n");
         } else {
             LocalDateTime hoy = LocalDateTime.now(ZONE).toLocalDate().atStartOfDay();
-            for (int i = 0; i < 7; i++) {
-                LocalDateTime dia = hoy.plusDays(i);
-                var delDia = agenda.stream()
-                        .filter(fc -> fc.getScheduledTime().toLocalDate().equals(dia.toLocalDate()))
-                        .toList();
-                if (!delDia.isEmpty()) {
-                    sb.append("  ").append(dia.format(DIA).toUpperCase()).append(":\n");
-                    delDia.forEach(fc -> sb.append("    ").append(fc).append("\n"));
+            String currentDay = "";
+            
+            for (FixedCommitment fc : agenda) {
+                String day = fc.getScheduledTime().format(DIA);
+                if (!day.equals(currentDay)) {
+                    currentDay = day;
+                    sb.append("\n  🗓️ ").append(day.toUpperCase()).append(":\n");
                 }
+                sb.append("    ").append(fc).append("\n");
             }
         }
 
-        sb.append("\nPUNTOS TOTALES: ").append(getTotalPoints()).append("\n");
+        // Resumen
+        sb.append("\n").append("-".repeat(50)).append("\n");
+        sb.append("🎯 Metas: ").append(metas.size());
+        sb.append(" | 📅 Compromisos: ").append(getFixedCommitments().size());
+        sb.append(" | 🏆 Puntos: ").append(getTotalPoints()).append("\n");
+        sb.append("-".repeat(50)).append("\n");
+        
         return sb.toString();
     }
 }

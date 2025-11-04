@@ -55,12 +55,23 @@ public class PersonalGoal extends Activity {
     }
 
     // --- toString() para agenda ---
-    @Override
+        @Override
     public String toString() {
-        String check = getCompleted() ? "Checkmark" : "Cross";
-        return String.format("• %s (%s) → %.1f/%.1f min (%.1f%%) %s",
-                getName(), exerciseType, achievedMinutes, targetMinutes,
-                getProgressPercentage(), check);
+        String check = getCompleted() ? "✓" : "✗";
+        String progressBar = createProgressBar();
+        return String.format("%s %s (%s) → %.1f/%.1f min (%.1f%%) %s",
+                getId(), getName(), exerciseType, achievedMinutes, targetMinutes,
+                getProgressPercentage(), progressBar);
+    }
+
+    private String createProgressBar() {
+        int progress = (int) (getProgressPercentage() / 10); // 0-10 bloques
+        StringBuilder bar = new StringBuilder("[");
+        for (int i = 0; i < 10; i++) {
+            bar.append(i < progress ? "█" : "░");
+        }
+        bar.append("]");
+        return bar.toString();
     }
 }
 
