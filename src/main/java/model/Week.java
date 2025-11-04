@@ -63,7 +63,10 @@ public class Week {
     }
 
     public boolean remove(String id) {
-        Activity a = findById(id);
+        if (id == null) return false;
+
+        String normalizedId = id.trim().toUpperCase();
+        Activity a = findById(normalizedId);
         if (a != null) {
             activities.remove(a);
             return true;
@@ -71,7 +74,9 @@ public class Week {
         return false;
     }
 
-    public Activity findById(String id) {  // ← String
+    public Activity findById(String id) {
+        if (id == null) return null;
+        String normalized = id.trim().toUpperCase();// ← String
         return activities.stream()
                 .filter(a -> a.getId().equals(id))
                 .findFirst().orElse(null);

@@ -25,9 +25,9 @@ public class Main {
     }
 
     private static void showMenu() {
-        System.out.println("-".repeat(40));
-        System.out.println(" ".repeat(11)+ " · · · MENU · · · ");
-        System.out.println("-".repeat(40));
+        System.out.println("-".repeat(55));
+        System.out.println(" ".repeat(14)+ "✨✨ · · · MENU · · · ✨✨");
+        System.out.println("-".repeat(55));
         System.out.println("1. Agregar Meta Personal");
         System.out.println("2. Agregar Compromiso Fijo");
         System.out.println("3. Marcar como Completado");
@@ -40,7 +40,7 @@ public class Main {
         System.out.println("10. Cargar Datos Demo");
         System.out.println("11. Ayuda");
         System.out.println("0. Salir");
-        System.out.println("-".repeat(40));
+        System.out.println("-".repeat(55));
     }
 
     private static void executeOption(int option) {
@@ -62,7 +62,7 @@ public class Main {
     }
 
     private static void addPersonalGoalMenu() {
-        System.out.println("\n--- NUEVA META PERSONAL ---");
+        System.out.println("\n=== NUEVA META PERSONAL ===");
         System.out.println("0. Volver");
         String name = readText("Nombre: ");
         if (name.equals("0")) return;
@@ -83,7 +83,7 @@ public class Main {
     }
 
     private static void addFixedCommitmentMenu() {
-        System.out.println("\n--- NUEVO COMPROMISO ---");
+        System.out.println("\n=== NUEVO COMPROMISO ===");
         System.out.println("0. Volver");
         String name = readText("Nombre: ");
         if (name.equals("0")) return;
@@ -101,13 +101,15 @@ public class Main {
         }
     }
     private static void deleteActivityMenu() {
-        String id = readText("ID a eliminar (ej. G1, C2): ");
+        String id = readText("ID a eliminar (ej. G1, c2): ");
         if (id.equals("0")) return;
 
-                if (WEEK.remove(id)) {
-            System.out.println("✓ Actividad eliminada: " + id);
+        String normalizedId = id.trim().toUpperCase();
+
+        if (WEEK.remove(id)) {
+            System.out.println("✓ Actividad eliminada: " + normalizedId);
         } else {
-            System.out.println("✗ No existe actividad con ID: " + id);
+            System.out.println("✗ No existe actividad con ID: " + normalizedId);
         }
     }
 
@@ -115,7 +117,9 @@ public class Main {
         String input = readText("ID (ej. G1, C2): ");
         if (input.equals("0")) return;
 
-        Activity activity = WEEK.findById(input);
+        String normalizedId = input.trim().toUpperCase();
+
+        Activity activity = WEEK.findById(normalizedId);
         if (activity == null) {
             System.out.println("No existe actividad con ese ID.");
             return;
@@ -125,7 +129,7 @@ public class Main {
             return;
         }
 
-        // ← REGLA: NO COMPLETAR COMPROMISO FUTURO
+        // NO COMPLETAR COMPROMISO FUTURO
         if (activity instanceof FixedCommitment fc) {
                         if (fc.getScheduledTime().isAfter(LocalDateTime.now(ZONE))) {
                 System.out.println("✗ No puedes completar un compromiso futuro.");
@@ -138,7 +142,7 @@ public class Main {
             if (minutes > 0) goal.addMinutes(minutes);
         }
 
-                activity.setCompleted(true);
+        activity.setCompleted(true);
         System.out.println("✓ Completado. Puntos: " + activity.calculatePoints());
     }
 
@@ -250,8 +254,8 @@ public class Main {
     }
 
     private static void showHelp() {
-        System.out.println("\n=== AYUDA - TIME MANAGER ===");
-        System.out.println("\n🎯 METAS PERSONALES:");
+        System.out.println("\n=== AYUDA ===");
+        System.out.println("🎯 METAS PERSONALES:");
         System.out.println("  • Actividades recurrentes (ejercicio, lectura, etc.)");
         System.out.println("  • Define minutos objetivo por semana");
         System.out.println("  • Acumula progreso hasta completar la meta");
@@ -270,14 +274,14 @@ public class Main {
     }
 
     private static void showWelcomeMessage() {
-        System.out.println("\n" + "=".repeat(55));
-        System.out.println("✨✨✨✨✨ BIENVENIDO A TIME MANAGER ✨✨✨✨✨");
-        System.out.println("       📅 Tu organizador semanal inteligente 📅");
-        System.out.println("=".repeat(55));
+        System.out.println("\n" + "-".repeat(55));
+        System.out.println(" ".repeat(3) + "✨✨✨✨✨ BIENVENIDO A TIME MANAGER ✨✨✨✨✨");
+        System.out.println(" ".repeat(7) +"📅 Tu organizador semanal inteligente 📅");
+        System.out.println("-".repeat(55));
         System.out.println("🎯 Gestiona metas personales y compromisos fijos");
         System.out.println("🏆 Gana puntos completando tus actividades");
         System.out.println("📈 Visualiza tu progreso y estadísticas");
         System.out.println("\n💡 CONSEJO: Usa la opción 10 para cargar datos demo");
-        System.out.println("=".repeat(55));
+        System.out.println("-".repeat(55));
     }
 }
