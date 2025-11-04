@@ -40,6 +40,7 @@ public class Main {
         System.out.println("10. Exportar Reporte");
         System.out.println("11. Cargar Datos Demo");
         System.out.println("12. Ayuda");
+        System.out.println("13. Acerca de");
         System.out.println("0. Salir");
         System.out.println("-".repeat(55));
     }
@@ -58,6 +59,7 @@ public class Main {
             case 10 -> exportReportMenu();
             case 11 -> loadSampleDataMenu();
             case 12 -> showHelp();
+            case 13 -> showAbout();
             case 0 -> System.out.println("¡Hasta luego! 👋");
             default -> System.out.println("Opción inválida.");
         }
@@ -521,6 +523,39 @@ public class Main {
             case 0 -> { /* Cancelar */ }
             default -> System.out.println("Opción inválida.");
         }
+    }
+
+    private static void showAbout() {
+        System.out.println("\n" + "=".repeat(55));
+        System.out.println(" ".repeat(11) + "✨✨ ACERCA DE TIME MANAGER ✨✨");
+        System.out.println("=".repeat(55));
+
+        System.out.println("    Desarrollado por: García Tobias Benjamín, ");
+        System.out.println("    Carmagnac María Clara y M Victoria Marcos.");
+        System.out.println("    Versión: 1.0.0");
+        System.out.println("    Fecha: Noviembre 2025");
+        System.out.println("    Lenguaje: Java 24.0.2\n");
+        System.out.println("    TimeManager es una aplicación de gestión");
+        System.out.println("    semanal que combina metas personales y");
+        System.out.println("    compromisos fijos con un diseño limpio");
+        System.out.println("    y principios sólidos de POO.\n");
+        System.out.println("    Características:");
+        System.out.println("    • Metas con progreso acumulado");
+        System.out.println("    • Citas con detección de conflictos");
+        System.out.println("    • Estadísticas y niveles de productividad");
+        System.out.println("    • UX intuitiva con emojis y barras\n");
+        System.out.println("    Este proyecto está diseñado para:");
+        System.out.println("    • Aprender Java y POO");
+        System.out.println("    • Portafolios profesionales");
+        System.out.println("    • Uso personal o educativo\n");
+        System.out.println("-".repeat(55));
+        System.out.println("   © 2025 García Tobias Benjamín, ");
+        System.out.println("   Carmagnac María Clara y M Victoria Marcos.");
+        System.out.println("   TODOS LOS DERECHOS RESERVADOS");
+        System.out.println("-".repeat(55));
+        System.out.println();
+        System.out.println("Presiona ENTER para volver...");
+        SC.nextLine();
     }
 
     private static void showHelp() {
