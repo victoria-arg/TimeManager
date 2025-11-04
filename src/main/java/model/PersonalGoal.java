@@ -1,14 +1,13 @@
 package model;
 
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PersonalGoal extends Activity {
+public class PersonalGoal extends Activity implements Cloneable {
 
     private static final Logger LOGGER = Logger.getLogger(PersonalGoal.class.getName());
 
-    private final String exerciseType;     // ej. "correr", "leer"
+    private final String exerciseType;     // ej correr, leer
     private double achievedMinutes;        // minutos acumulados
     private final double targetMinutes;    // meta semanal
 
@@ -23,7 +22,6 @@ public class PersonalGoal extends Activity {
                 new Object[]{name, this.targetMinutes});
     }
 
-    // --- Getters ---
     public String getExerciseType() {
         return exerciseType; }
     public double getAchievedMinutes() {
@@ -31,7 +29,7 @@ public class PersonalGoal extends Activity {
     public double getTargetMinutes() {
         return targetMinutes; }
 
-    // --- Progreso ---
+    // progreso
     public void addMinutes(double minutes) {
         if (minutes < 0) {
             LOGGER.log(Level.WARNING, "Minutos negativos ignorados: {0}", minutes);
@@ -48,20 +46,16 @@ public class PersonalGoal extends Activity {
         return (achievedMinutes / targetMinutes) * 100.0;
     }
 
-    // --- Puntos ---
+    // puntos
     @Override
     public int calculatePoints() {
         return getCompleted() ? (int) getProgressPercentage() : 0;
     }
 
-    // --- toString() para agenda ---
-        @Override
-    public String toString() {
-        String check = getCompleted() ? "✓" : "✗";
-        String progressBar = createProgressBar();
-        return String.format("%s %s (%s) → %.1f/%.1f min (%.1f%%) %s",
-                getId(), getName(), exerciseType, achievedMinutes, targetMinutes,
-                getProgressPercentage(), progressBar);
+
+    @Override
+    public PersonalGoal clone() throws CloneNotSupportedException {
+        return (PersonalGoal) super.clone();
     }
 
     private String createProgressBar() {
@@ -72,6 +66,15 @@ public class PersonalGoal extends Activity {
         }
         bar.append("]");
         return bar.toString();
+    }
+
+    @Override
+    public String toString() {
+        String check = getCompleted() ? "✓" : "✗";
+        String progressBar = createProgressBar();
+        return String.format("%s %s (%s) → %.1f/%.1f min (%.1f%%) %s",
+                getId(), getName(), exerciseType, achievedMinutes, targetMinutes,
+                getProgressPercentage(), progressBar);
     }
 }
 

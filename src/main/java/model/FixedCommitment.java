@@ -8,12 +8,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * FixedCommitment: compromisos con horario fijo.
- * No permite creación en el pasado.
+ FixedCommitment: compromisos con horario fijo.
+ No permite creación en el pasado.
  */
-public class FixedCommitment extends Activity {
+public class FixedCommitment extends Activity implements Cloneable {
 
-    private final LocalDateTime scheduledTime; // hora programada
+    private LocalDateTime scheduledTime; // hora programada
 
     private static final Logger LOGGER = Logger.getLogger(FixedCommitment.class.getName());
     private static final ZoneId ZONE = ZoneId.of("America/Argentina/Buenos_Aires");
@@ -34,12 +34,10 @@ public class FixedCommitment extends Activity {
                 new Object[]{name, scheduledTime});
     }
 
-    // --- Getters ---
     public LocalDateTime getScheduledTime() {
         return scheduledTime;
     }
 
-    // --- Estado ---
     public boolean isUpcoming() {
         LocalDateTime now = LocalDateTime.now(ZONE);
         return !scheduledTime.isBefore(now) &&
@@ -50,7 +48,7 @@ public class FixedCommitment extends Activity {
         return scheduledTime.isBefore(LocalDateTime.now(ZONE)) && !getCompleted();
     }
 
-    // --- Conflicto ---
+    // conflicto
     public boolean hasConflict(List<FixedCommitment> others) {
         if (others == null || others.isEmpty()) return false;
 
@@ -66,7 +64,7 @@ public class FixedCommitment extends Activity {
                 });
     }
 
-    // --- Reprogramar ---
+    // reprogramar
     public boolean reschedule(LocalDateTime newTime, List<FixedCommitment> others) {
         if (newTime == null || newTime.isBefore(LocalDateTime.now(ZONE))) {
             LOGGER.log(Level.WARNING, "Reprogramación inválida: {0}",
@@ -80,7 +78,7 @@ public class FixedCommitment extends Activity {
             return false;
         }
 
-        // Aplicar cambio
+        // aplicar cambio
         try {
             java.lang.reflect.Field field = this.getClass().getDeclaredField("scheduledTime");
             field.setAccessible(true);
@@ -93,13 +91,17 @@ public class FixedCommitment extends Activity {
         }
     }
 
-    // --- Puntos ---
     @Override
     public int calculatePoints() {
         return getCompleted() ? 100 : 0;
     }
 
-        // --- Formato agenda ---
+    @Override
+    public FixedCommitment clone() throws CloneNotSupportedException {
+        return (FixedCommitment) super.clone();
+    }
+
+
     @Override
     public String toString() {
         String emoji = getCompleted() ? "✅" :

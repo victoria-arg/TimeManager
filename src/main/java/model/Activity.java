@@ -38,6 +38,7 @@ public abstract class Activity {
     //las subclases deben implementarlo
     public abstract int calculatePoints();
 
+
     @Override
     public String toString() {
         return String.format("%s[id=%s, name='%s', duration=%d, completed=%s]",

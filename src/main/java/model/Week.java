@@ -6,8 +6,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Week {
     private final List<Activity> activities = new ArrayList<>();
@@ -38,7 +36,7 @@ public class Week {
             return "Tipo desconocido.";
         }
 
-        // Asignar ID
+        // asignar ID
         try {
             Field idField = Activity.class.getDeclaredField("id");
             idField.setAccessible(true);
@@ -146,7 +144,7 @@ public class Week {
             }
         }
 
-        // Resumen
+        // resumen
         sb.append("\n").append("-".repeat(50)).append("\n");
         sb.append("🎯 Metas: ").append(metas.size());
         sb.append(" | 📅 Compromisos: ").append(getFixedCommitments().size());

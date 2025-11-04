@@ -1,10 +1,10 @@
 import model.*;
-import utils.TimeUtils;
 import utils.DataExporter;
 import utils.SampleDataLoader;
 import java.time.*;
 import java.time.format.*;
 import java.util.Scanner;
+import java.util.List;
 
 public class Main {
     private static final Week WEEK = new Week();
@@ -32,13 +32,14 @@ public class Main {
         System.out.println("2. Agregar Compromiso Fijo");
         System.out.println("3. Marcar como Completado");
         System.out.println("4. Mostrar Semana");
-                System.out.println("5. Próximos (30 min)");
+        System.out.println("5. Próximos (30 min)");
         System.out.println("6. Vencidos");
-        System.out.println("7. Eliminar actividad");
-                System.out.println("8. Ver Estadísticas");
-                System.out.println("9. Exportar Reporte");
-        System.out.println("10. Cargar Datos Demo");
-        System.out.println("11. Ayuda");
+        System.out.println("7. Modificar actividad");
+        System.out.println("8. Eliminar actividad");
+        System.out.println("9. Ver Estadísticas");
+        System.out.println("10. Exportar Reporte");
+        System.out.println("11. Cargar Datos Demo");
+        System.out.println("12. Ayuda");
         System.out.println("0. Salir");
         System.out.println("-".repeat(55));
     }
@@ -50,12 +51,13 @@ public class Main {
             case 3 -> markAsCompletedMenu();
             case 4 -> System.out.println(WEEK);
             case 5 -> showList(WEEK.getUpcoming(), "PRÓXIMOS (30 min)");
-                        case 6 -> showList(WEEK.getOverdue(), "VENCIDOS");
-            case 7 -> deleteActivityMenu();
-                        case 8 -> showStatistics();
-                        case 9 -> exportReportMenu();
-            case 10 -> loadSampleDataMenu();
-            case 11 -> showHelp();
+            case 6 -> showList(WEEK.getOverdue(), "VENCIDOS");
+            case 7 -> modifyActivityMenu();
+            case 8 -> deleteActivityMenu();
+            case 9 -> showStatistics();
+            case 10 -> exportReportMenu();
+            case 11 -> loadSampleDataMenu();
+            case 12 -> showHelp();
             case 0 -> System.out.println("¡Hasta luego! 👋");
             default -> System.out.println("Opción inválida.");
         }
@@ -129,7 +131,7 @@ public class Main {
             return;
         }
 
-        // NO COMPLETAR COMPROMISO FUTURO
+        // no completar compromiso futuro
         if (activity instanceof FixedCommitment fc) {
                         if (fc.getScheduledTime().isAfter(LocalDateTime.now(ZONE))) {
                 System.out.println("✗ No puedes completar un compromiso futuro.");
@@ -201,6 +203,274 @@ public class Main {
         System.out.println("\n" + stats.generateReport());
     }
 
+    private static void modifyActivityMenu() {
+        String input = readText("ID a modificar (ej. G1, C2): ");
+        if (input.equals("0")) return;
+
+        String normalizedId = input.trim().toUpperCase();
+        Activity activity = WEEK.findById(normalizedId);
+
+        if (activity == null) {
+            System.out.println("No existe actividad con ID: " + normalizedId);
+            return;
+        }
+
+        System.out.println("\nActividad actual:");
+        System.out.println("  • " + activity);
+
+        if (activity instanceof PersonalGoal goal) {
+            modifyPersonalGoal(goal);
+        } else if (activity instanceof FixedCommitment fc) {
+            modifyFixedCommitment(fc);
+        }
+    }
+
+    private static void modifyPersonalGoal(PersonalGoal goal) {
+        System.out.println("\n=== MODIFICAR META PERSONAL ===");
+        System.out.println("0. Volver al menú anterior");
+        System.out.println("Dejar en blanco para mantener actual");
+
+        // copia temporal
+        PersonalGoal tempGoal;
+        try {
+            tempGoal = goal.clone();
+        } catch (CloneNotSupportedException e) {
+            System.out.println("Error interno: no se puede clonar la meta.");
+            return;
+        }
+
+        boolean cancelled = false;
+
+        String name = readText("Nuevo nombre [" + tempGoal.getName() + "]: ");
+        if (name.equals("0")) cancelled = true;
+        else if (!name.isEmpty()) {
+            try {
+                java.lang.reflect.Field nameField = Activity.class.getDeclaredField("name");
+                nameField.setAccessible(true);
+                nameField.set(tempGoal, name);
+            } catch (Exception e) {
+                System.out.println("Error actualizando nombre.");
+                return;
+            }
+        }
+
+        if (cancelled) {
+            System.out.println("Modificación cancelada.");
+            return;
+        }
+
+        String type = readText("Nuevo tipo [" + tempGoal.getExerciseType() + "]: ");
+        if (type.equals("0")) cancelled = true;
+        else if (!type.isEmpty()) {
+            try {
+                java.lang.reflect.Field typeField = PersonalGoal.class.getDeclaredField("exerciseType");
+                typeField.setAccessible(true);
+                typeField.set(tempGoal, type);
+            } catch (Exception e) {
+                System.out.println("Error actualizando tipo.");
+                return;
+            }
+        }
+
+        if (cancelled) {
+            System.out.println("Modificación cancelada.");
+            return;
+        }
+
+        boolean targetModified = false;
+        while (!targetModified && !cancelled) {
+            String targetInput = readText("Nuevo objetivo (min) [" + tempGoal.getTargetMinutes() + "] (0 para cancelar): ");
+            if (targetInput.equals("0")) {
+                cancelled = true;
+                break;
+            }
+            if (targetInput.isEmpty()) {
+                targetModified = true;
+                break;
+            }
+
+            try {
+                double newTarget = Double.parseDouble(targetInput);
+                if (newTarget < tempGoal.getAchievedMinutes()) {
+                    System.out.println("Error: No puedes bajar el objetivo por debajo de lo ya logrado ("
+                            + tempGoal.getAchievedMinutes() + " min).");
+                    continue;
+                }
+                if (newTarget <= 0) {
+                    System.out.println("El objetivo debe ser mayor que 0.");
+                    continue;
+                }
+
+                java.lang.reflect.Field targetField = PersonalGoal.class.getDeclaredField("targetMinutes");
+                targetField.setAccessible(true);
+                targetField.set(tempGoal, newTarget);
+                System.out.println("Objetivo actualizado a " + newTarget + " min.");
+                targetModified = true;
+
+            } catch (NumberFormatException e) {
+                System.out.println("Entrada inválida. Debe ser un número.");
+            } catch (Exception e) {
+                System.out.println("Error interno.");
+                cancelled = true;
+            }
+        }
+
+        // aplicar solo si no se modifico
+        if (cancelled) {
+            System.out.println("Modificación cancelada.");
+        } else {
+            // copiar datos de tempGoal
+            try {
+                java.lang.reflect.Field nameField = Activity.class.getDeclaredField("name");
+                nameField.setAccessible(true);
+                nameField.set(goal, nameField.get(tempGoal));
+
+                java.lang.reflect.Field typeField = PersonalGoal.class.getDeclaredField("exerciseType");
+                typeField.setAccessible(true);
+                typeField.set(goal, typeField.get(tempGoal));
+
+                java.lang.reflect.Field targetField = PersonalGoal.class.getDeclaredField("targetMinutes");
+                targetField.setAccessible(true);
+                targetField.set(goal, targetField.get(tempGoal));
+
+                System.out.println("Meta actualizada: " + goal.getId());
+            } catch (Exception e) {
+                System.out.println("Error aplicando cambios.");
+            }
+        }
+    }
+
+
+    private static void modifyFixedCommitment(FixedCommitment fc) {
+        System.out.println("\n=== MODIFICAR COMPROMISO FIJO ===");
+        System.out.println("0. Volver al menú anterior");
+        System.out.println("Dejar en blanco para mantener actual");
+
+        // copia temporal
+        FixedCommitment tempFc;
+        try {
+            tempFc = fc.clone();
+        } catch (CloneNotSupportedException e) {
+            System.out.println("Error interno: no se puede clonar el compromiso.");
+            return;
+        }
+
+        boolean cancelled = false;
+
+        String name = readText("Nuevo nombre [" + tempFc.getName() + "]: ");
+        if (name.equals("0")) cancelled = true;
+        else if (!name.isEmpty()) {
+            try {
+                java.lang.reflect.Field nameField = Activity.class.getDeclaredField("name");
+                nameField.setAccessible(true);
+                nameField.set(tempFc, name);
+            } catch (Exception e) {
+                System.out.println("Error actualizando nombre.");
+                return;
+            }
+        }
+
+        if (cancelled) {
+            System.out.println("Modificación cancelada.");
+            return;
+        }
+
+        String durationInput = readText("Nueva duración (min) [" + tempFc.getDuration() + "]: ");
+        if (durationInput.equals("0")) cancelled = true;
+        else if (!durationInput.isEmpty()) {
+            try {
+                int newDuration = Integer.parseInt(durationInput);
+                if (newDuration <= 0) {
+                    System.out.println("La duración debe ser mayor que 0.");
+                } else {
+                    java.lang.reflect.Field durationField = Activity.class.getDeclaredField("duration");
+                    durationField.setAccessible(true);
+                    durationField.set(tempFc, newDuration);
+                }
+            } catch (Exception e) {
+                System.out.println("Duración inválida.");
+                return;
+            }
+        }
+
+        if (cancelled) {
+            System.out.println("Modificación cancelada.");
+            return;
+        }
+
+        boolean dateModified = false;
+        while (!dateModified && !cancelled) {
+            String dateInput = readText("Nueva fecha/hora (dd/MM/yyyy HH:mm) [" +
+                    tempFc.getScheduledTime().format(DATE_FORMAT) + "] (0 para cancelar): ");
+            if (dateInput.equals("0")) {
+                cancelled = true;
+                break;
+            }
+            if (dateInput.isEmpty()) {
+                dateModified = true;
+                break;
+            }
+
+            try {
+                LocalDateTime newDateTime = LocalDateTime.parse(dateInput, DATE_FORMAT);
+                if (newDateTime.isBefore(LocalDateTime.now(ZONE))) {
+                    System.out.println("No se puede programar en el pasado.");
+                    continue;
+                }
+
+                java.lang.reflect.Field timeField = FixedCommitment.class.getDeclaredField("scheduledTime");
+                timeField.setAccessible(true);
+                timeField.set(tempFc, newDateTime);
+
+                // verificar conflicto
+                List<FixedCommitment> others = WEEK.getFixedCommitments().stream()
+                        .filter(c -> !c.getId().equals(fc.getId()))
+                        .toList();
+
+                if (tempFc.hasConflict(others)) {
+                    System.out.println("Conflicto de horario con otro compromiso.");
+                    timeField.set(tempFc, fc.getScheduledTime()); // revertir
+                    continue;
+                }
+
+                System.out.println("Fecha/hora actualizada.");
+                dateModified = true;
+
+            } catch (DateTimeParseException e) {
+                System.out.println("Formato inválido. Usa: dd/MM/yyyy HH:mm");
+            } catch (Exception e) {
+                System.out.println("Error al actualizar fecha/hora.");
+                cancelled = true;
+            }
+        }
+
+        // aplicar cambios si no se cancelo
+        if (cancelled) {
+            System.out.println("Modificación cancelada.");
+        } else {
+            try {
+                // copiar datos de tempFc a fc original
+                java.lang.reflect.Field nameField = Activity.class.getDeclaredField("name");
+                nameField.setAccessible(true);
+                nameField.set(fc, nameField.get(tempFc));
+
+                java.lang.reflect.Field durationField = Activity.class.getDeclaredField("duration");
+                durationField.setAccessible(true);
+                durationField.set(fc, durationField.get(tempFc));
+
+                java.lang.reflect.Field timeField = FixedCommitment.class.getDeclaredField("scheduledTime");
+                timeField.setAccessible(true);
+                timeField.set(fc, timeField.get(tempFc));
+
+                System.out.println("Compromiso actualizado: " + fc.getId());
+            } catch (Exception e) {
+                System.out.println("Error aplicando cambios.");
+            }
+        }
+    }
+
+
+
     private static void exportReportMenu() {
         System.out.println("\n=== EXPORTAR REPORTE ===");
         System.out.println("1. Reporte completo semanal");
@@ -226,7 +496,7 @@ public class Main {
                     System.out.println("✗ Error al exportar agenda");
                 }
             }
-            case 0 -> { /* Volver */ }
+            case 0 -> { }
             default -> System.out.println("Opción inválida.");
         }
     }
@@ -281,7 +551,7 @@ public class Main {
         System.out.println("🎯 Gestiona metas personales y compromisos fijos");
         System.out.println("🏆 Gana puntos completando tus actividades");
         System.out.println("📈 Visualiza tu progreso y estadísticas");
-        System.out.println("\n💡 CONSEJO: Usa la opción 10 para cargar datos demo");
+        System.out.println("\n💡 CONSEJO: Usa la opción 11 para cargar datos demo");
         System.out.println("-".repeat(55));
     }
 }
