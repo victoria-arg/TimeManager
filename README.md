@@ -82,11 +82,13 @@ java -cp target/classes Main
 4. **Mostrar Semana**: Ver vista general de la semana
 5. **Próximos (30 min)**: Ver compromisos próximos
 6. **Vencidos**: Ver compromisos no completados
-7. **Eliminar actividad**: Remover actividades por ID
-8. **Ver Estadísticas**: Resumen detallado de progreso
-9. **Exportar Reporte**: Generar archivos de texto
-10. **Cargar Datos Demo**: Agregar datos de ejemplo
-11. **Ayuda**: Guía de uso detallada
+7. **Modificar actividad**: Modificar nombre, actividad, duración
+8. **Eliminar actividad**: Remover actividades por ID
+9. **Ver Estadísticas**: Resumen detallado de progreso
+10. **Exportar Reporte**: Generar archivos de texto
+11. **Cargar Datos Demo**: Agregar datos de ejemplo
+12. **Ayuda**: Guía de uso detallada
+13. **Acerca de**: Características, diseño, autores y derechos reservados 
 
 ### Consejos de Uso
 - Usa los IDs para identificar actividades (G1, C2, etc.)
@@ -138,6 +140,7 @@ java -cp target/classes Main
 ## 👥 Autor
 
 Proyecto desarrollado como parte del curso de Programación Orientada a Objetos.
+García Tobias Benjamín, Carmagnac María Clara y M Victoria Marcos.
 
 ## 📝 Licencia
 
